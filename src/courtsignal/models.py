@@ -3,7 +3,7 @@ from datetime import date
 from hashlib import sha256
 from typing import Literal
 from urllib.parse import urlparse
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 def stable_id(*parts: str) -> str:
@@ -35,14 +35,24 @@ class DocumentSpec(Contract):
     download_url: str
     acquisition: Literal['published_mirror', 'nyscef_public_document', 'recap_api']
     expected_sha256: str | None = None
+    # Project-archived copy of the same bytes, used only when the original source refuses access.
+    fallback_url: str | None = None
 
-    @field_validator('download_url')
+    @field_validator('download_url', 'fallback_url')
     @classmethod
     def public_https(cls, value):
+        if value is None:
+            return value
         parsed = urlparse(value)
         if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password:
             raise ValueError('Document sources must be HTTPS URLs without embedded credentials')
         return value
+
+    @model_validator(mode='after')
+    def fallback_requires_pin(self):
+        if self.fallback_url and not self.expected_sha256:
+            raise ValueError('A fallback copy is trusted only with a pinned expected_sha256')
+        return self
 
     @property
     def id(self):

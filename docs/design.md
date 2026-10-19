@@ -29,6 +29,8 @@ src/courtsignal/
 - `ingestion_events`: append-only created/updated/unchanged/quarantined outcomes. Failed refreshes leave the current canonical record intact.
 - `case_timeline`: curated SQL view for downstream consumers. Unknown metadata remains unknown; it is not inferred to fill a column.
 
+Acquisition can fail because a source changes its access controls; NYSCEF began serving a Cloudflare challenge to non-browser clients in 2026. The response is quarantine, not evasion. A pinned SHA-256 makes alternative retrieval paths safe: `browser-fetch` accepts an operator's own browser download, and an optional manifest `fallback_url` accepts an archived copy, each only if the bytes match the pin. `quality.retrieved_from` and the ingestion event record which path supplied the bytes, while `source_url` stays the original court source. A changed file at the original source is still rejected; only a failed download falls back.
+
 Raw PDFs live under their SHA-256 hashes. A failed refreshed document cannot overwrite the cached file for the current canonical version. Raw PDFs, runtime databases, API keys and embedding caches are ignored by git. The offline HTML deliberately embeds the selected public corpus for a reproducible demonstration; do not export private corpora to a public repository.
 
 ## Evidence and extraction

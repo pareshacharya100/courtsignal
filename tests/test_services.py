@@ -1,3 +1,4 @@
+from hashlib import sha256
 import json
 import httpx
 import pytest
@@ -5,7 +6,7 @@ from courtsignal.config import Settings
 from courtsignal.models import Page
 from courtsignal.providers import Claude, Voyage, Pinecone
 from courtsignal.sources import RecapSource
-from courtsignal.transport import request, download_pdf
+from courtsignal.transport import browser_download, request, download_pdf
 
 
 def client(handler):
@@ -27,6 +28,40 @@ def test_retry_after_is_bounded_and_errors_are_redacted():
 def test_document_download_does_not_allow_arbitrary_hosts():
     with pytest.raises(ValueError, match='approved'):
         download_pdf('https://example.org/not-a-court.pdf')
+
+
+NYSCEF = 'https://iapps.courts.state.ny.us/nyscef/ViewDocument?docIndex=test'
+
+
+def test_browser_download_waits_for_file_matching_pin(tmp_path):
+    data = b'%PDF-court filing'
+    (tmp_path / 'unrelated.pdf').write_bytes(b'%PDF-something else')
+    opened, ticks = [], iter(range(100))
+    def opener(url):
+        opened.append(url)
+        return True
+    def sleep(_):
+        if next(ticks) == 2:  # the browser finishes saving after a few polls
+            (tmp_path / 'ViewDocument.pdf').write_bytes(data)
+    path, found = browser_download(NYSCEF, sha256(data).hexdigest(), tmp_path, timeout=60,
+                                   opener=opener, sleep=sleep, clock=lambda: 0)
+    assert opened == [NYSCEF] and found == data and path.name == 'ViewDocument.pdf'
+
+
+def test_browser_download_reuses_existing_file_without_opening(tmp_path):
+    data = b'%PDF-already downloaded'
+    (tmp_path / 'saved.pdf').write_bytes(data)
+    path, _ = browser_download(NYSCEF, sha256(data).hexdigest(), tmp_path, opener=lambda _: pytest.fail('Browser opened'))
+    assert path.name == 'saved.pdf'
+
+
+def test_browser_download_times_out_and_rejects_unapproved_hosts(tmp_path):
+    clock = iter([0, 0, 5, 11])
+    with pytest.raises(ValueError, match='No PDF matching'):
+        browser_download(NYSCEF, '0' * 64, tmp_path, timeout=10, opener=lambda _: True,
+                         sleep=lambda _: None, clock=lambda: next(clock))
+    with pytest.raises(ValueError, match='approved'):
+        browser_download('https://example.org/x.pdf', '0' * 64, tmp_path, opener=lambda _: pytest.fail('Browser opened'))
 
 
 def test_claude_schema_constraints_and_evidence_are_checked(pages):

@@ -1,10 +1,15 @@
 """Bounded downloads and retries. Court records and provider responses are untrusted."""
+from hashlib import sha256
+from pathlib import Path
 import time
 from urllib.parse import urlparse
+import webbrowser
 import httpx
 
 PUBLIC_HOSTS = {'cases.justia.com', 'docs.justia.com', 'iapps.courts.state.ny.us',
-                'www.courtlistener.com', 'storage.courtlistener.com'}
+                'www.courtlistener.com', 'storage.courtlistener.com',
+                # GitHub release assets: hash-pinned project archive copies (manifest fallback_url).
+                'github.com', 'objects.githubusercontent.com', 'release-assets.githubusercontent.com'}
 
 
 def request(client, method, url, *, attempts=3, sleep=time.sleep, **kwargs):
@@ -49,3 +54,42 @@ def download_pdf(url, limit=20 * 1024 * 1024):
                     raise ValueError('Source did not return a PDF; login pages are not indexed')
                 return bytes(data)
     raise ValueError('Too many document redirects')
+
+
+def browser_download(url, expected_sha256, downloads, timeout=180, opener=webbrowser.open,
+                     sleep=time.sleep, clock=time.monotonic, limit=20 * 1024 * 1024):
+    """Fetch a challenge-protected public PDF through the operator's own desktop browser.
+
+    This does not imitate a browser or solve challenges: it opens the real browser and waits for a
+    file in the downloads folder whose bytes match the pinned SHA-256. Returns (path, bytes).
+    """
+    parsed = urlparse(url)
+    if parsed.scheme != 'https' or parsed.hostname not in PUBLIC_HOSTS:
+        raise ValueError('Download host is not an approved public court-document source')
+    downloads = Path(downloads).expanduser()
+    seen = {}
+
+    def find():
+        for path in downloads.glob('*.pdf'):
+            stat = path.stat()
+            if seen.get(path) == (stat.st_mtime, stat.st_size) or stat.st_size > limit:
+                continue
+            seen[path] = (stat.st_mtime, stat.st_size)
+            data = path.read_bytes()
+            if sha256(data).hexdigest() == expected_sha256:
+                return path, data
+        return None
+
+    found = find()
+    if found:
+        return found
+    if not opener(url):
+        raise ValueError('No desktop browser available; use the manifest fallback_url instead')
+    deadline = clock() + timeout
+    while clock() < deadline:
+        sleep(2)
+        found = find()
+        if found:
+            return found
+    raise ValueError(f'No PDF matching the pinned SHA-256 appeared in {downloads} within {timeout}s. '
+                     'If the browser displayed the PDF instead of saving it, save it to that folder and rerun.')
