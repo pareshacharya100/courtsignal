@@ -52,6 +52,8 @@ class Store:
             Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         with self.connection() as db:
             for statement in SCHEMA:
+                if self.postgres and statement.startswith('CREATE VIEW IF NOT EXISTS'):
+                    statement = statement.replace('CREATE VIEW IF NOT EXISTS', 'CREATE OR REPLACE VIEW', 1)
                 self.execute(db, statement)
 
     @contextmanager
