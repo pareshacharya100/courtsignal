@@ -1,0 +1,59 @@
+{
+  "documents": [
+    {
+      "document_id": "aa0364d13468648510f665d798a2d3d845ea0d8c2726a5d86267b97dd8e22d67",
+      "title": "Opinion and Order on Sanctions",
+      "status": "created",
+      "pages": 43,
+      "chunks": 75,
+      "sha256": "2aa670b9ce69337c483518d81b6a67fc6852a85c8a5bef7475a764da8a9ad856",
+      "quality": {
+        "document_number_verified": true,
+        "case_number_verified": true,
+        "filing_date_verified": true,
+        "page_count": 43,
+        "needs_ocr_pages": [],
+        "text_page_coverage": 1.0
+      }
+    },
+    {
+      "document_id": "46aa307ba49c40c615389cc63a1086fb80ba6aab9d2aa87fc62d22f8548429a7",
+      "title": "Opinion and Order on Motion to Dismiss",
+      "status": "created",
+      "pages": 7,
+      "chunks": 13,
+      "sha256": "1525d112321d988c6d3d54feb1af2e5321bfa5a723bb5dd5b1ddee4fc73ee2e0",
+      "quality": {
+        "document_number_verified": true,
+        "case_number_verified": true,
+        "filing_date_verified": true,
+        "page_count": 7,
+        "needs_ocr_pages": [],
+        "text_page_coverage": 1.0
+      }
+    },
+    {
+      "document_id": "90098b3bee79933dabab7ecefbc99bfd83e4f625334415eaacf49ffe0d87e1a0",
+      "title": "Request for Judicial Intervention",
+      "status": "created",
+      "pages": 3,
+      "chunks": 6,
+      "sha256": "ce12f3091e34598cde189288afb9d1dc431a08f5ba91892f453d6be8e1e1db7b",
+      "quality": {
+        "document_number_verified": true,
+        "case_number_verified": true,
+        "filing_date_verified": true,
+        "page_count": 3,
+        "needs_ocr_pages": [],
+        "text_page_coverage": 1.0
+      }
+    }
+  ],
+  "counts": {
+    "cases": 2,
+    "documents": 3,
+    "pages": 53,
+    "chunks": 94,
+    "extractions": 0
+  }
+}

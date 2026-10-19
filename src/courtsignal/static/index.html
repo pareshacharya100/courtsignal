@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CourtSignal · Evidence explorer</title><link rel="stylesheet" href="/static/style.css"></head>
+<body>
+<header><a class="brand" href="/">CS<span>CourtSignal</span></a><span class="label">COURT DATA / EVIDENCE EXPLORER</span><span id="database" class="pill">Connecting</span></header>
+<main>
+<section class="intro"><div><p class="eyebrow">FROM FILINGS TO FINDABLE EVIDENCE</p><h1>Every result has a source.</h1><p>Explore court records, follow the docket, and inspect the page behind each result.</p></div><div class="metrics" id="metrics" aria-live="polite"></div></section>
+<div class="workspace">
+<aside><div class="section-head"><h2>Cases</h2><button id="all" class="link">View all</button></div><div id="cases"></div><div class="note"><h3>Source matters</h3><p>The federal sample uses published copies of court opinions. The state sample comes directly from NYSCEF.</p><p>RECAP ingestion and optional Claude, Voyage and Pinecone integrations are available through the CLI.</p></div></aside>
+<section class="evidence"><form id="search"><label for="query">Search the record</label><div class="searchbox"><input id="query" required maxlength="2000" placeholder="Try: fake opinions sanctions" autocomplete="off"><button type="submit">Search ↗</button></div><div class="controls"><label>Method <select id="mode"><option value="keyword">Keyword · BM25</option><option value="semantic">Semantic · Voyage + Pinecone</option></select></label><label>Source <select id="source"><option value="">All sources</option><option value="pacer">Federal</option><option value="nyscef">NYSCEF</option></select></label></div></form>
+<div id="message" role="status"></div><div id="results"><div class="empty"><span>01 / DISCOVER</span><h2>Start with a question.<br>Stay close to the evidence.</h2><p>Search a phrase or choose a case to see its documents.</p><button id="example" class="secondary">Explore the sanctions opinion ↗</button></div></div></section>
+<section id="detail" class="detail"><p class="eyebrow">DOCUMENT INSPECTOR</p><h2>Context, intact.</h2><p>Open a result to see its acquisition source, validation checks, and complete extracted page.</p><div class="placeholder-line"></div><div class="placeholder-line short"></div></section>
+</div><footer>Research prototype · Keyword search works locally. Semantic search requires configured services and an indexed corpus. Quotes require human review.</footer>
+</main><script src="/static/app.js" defer></script></body></html>

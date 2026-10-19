@@ -1,0 +1,8 @@
+# Direct dependency versions used for the recorded demo and test run.
+pydantic==2.14.0
+pypdf==6.10.0
+httpx[socks]==0.28.1
+fastapi==0.149.0
+uvicorn==0.54.0
+psycopg[binary]==3.3.6
+pytest==9.1.1

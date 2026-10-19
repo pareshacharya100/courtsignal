@@ -1,0 +1,39 @@
+{
+  "mode": "keyword",
+  "queries": 6,
+  "recall_at_5": 1.0,
+  "mrr_at_5": 1.0,
+  "results": [
+    {
+      "query": "fake opinions sanctions",
+      "expected_document_id": "aa0364d13468648510f665d798a2d3d845ea0d8c2726a5d86267b97dd8e22d67",
+      "rank": 1
+    },
+    {
+      "query": "nonexistent cases ChatGPT",
+      "expected_document_id": "aa0364d13468648510f665d798a2d3d845ea0d8c2726a5d86267b97dd8e22d67",
+      "rank": 1
+    },
+    {
+      "query": "Montreal Convention two-year period",
+      "expected_document_id": "46aa307ba49c40c615389cc63a1086fb80ba6aab9d2aa87fc62d22f8548429a7",
+      "rank": 1
+    },
+    {
+      "query": "bankruptcy automatic stay tolling",
+      "expected_document_id": "46aa307ba49c40c615389cc63a1086fb80ba6aab9d2aa87fc62d22f8548429a7",
+      "rank": 1
+    },
+    {
+      "query": "request judicial intervention",
+      "expected_document_id": "90098b3bee79933dabab7ecefbc99bfd83e4f625334415eaacf49ffe0d87e1a0",
+      "rank": 1
+    },
+    {
+      "query": "preliminary conference request",
+      "expected_document_id": "90098b3bee79933dabab7ecefbc99bfd83e4f625334415eaacf49ffe0d87e1a0",
+      "rank": 1
+    }
+  ],
+  "scope": "Small hand-authored demonstration set; not a production retrieval benchmark."
+}

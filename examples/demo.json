@@ -1,0 +1,44 @@
+[
+  {
+    "case": {
+      "source_system": "pacer",
+      "court": "nysd",
+      "docket_number": "1:22-cv-01461",
+      "case_name": "Mata v. Avianca, Inc."
+    },
+    "document_number": "54",
+    "title": "Opinion and Order on Sanctions",
+    "filed_date": "2023-06-22",
+    "download_url": "https://cases.justia.com/federal/district-courts/new-york/nysdce/1%3A2022cv01461/575368/54/0.pdf?ts=1687525481",
+    "acquisition": "published_mirror",
+    "expected_sha256": "2aa670b9ce69337c483518d81b6a67fc6852a85c8a5bef7475a764da8a9ad856"
+  },
+  {
+    "case": {
+      "source_system": "pacer",
+      "court": "nysd",
+      "docket_number": "1:22-cv-01461",
+      "case_name": "Mata v. Avianca, Inc."
+    },
+    "document_number": "55",
+    "title": "Opinion and Order on Motion to Dismiss",
+    "filed_date": "2023-06-22",
+    "download_url": "https://cases.justia.com/federal/district-courts/new-york/nysdce/1%3A2022cv01461/575368/55/0.pdf?ts=1687525482",
+    "acquisition": "published_mirror",
+    "expected_sha256": "1525d112321d988c6d3d54feb1af2e5321bfa5a723bb5dd5b1ddee4fc73ee2e0"
+  },
+  {
+    "case": {
+      "source_system": "nyscef",
+      "court": "ny-supreme-queens",
+      "docket_number": "701695/2024",
+      "case_name": "Garcia v. The Lillian Goldman Family, LLC et al."
+    },
+    "document_number": "35",
+    "title": "Request for Judicial Intervention",
+    "filed_date": "2024-09-23",
+    "download_url": "https://iapps.courts.state.ny.us/nyscef/ViewDocument?docIndex=8%2FacYaIz5Wk6E0Sgtbw8QQ%3D%3D",
+    "acquisition": "nyscef_public_document",
+    "expected_sha256": "ce12f3091e34598cde189288afb9d1dc431a08f5ba91892f453d6be8e1e1db7b"
+  }
+]

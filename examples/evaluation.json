@@ -1,0 +1,26 @@
+[
+  {
+    "query": "fake opinions sanctions",
+    "expected_document_id": "aa0364d13468648510f665d798a2d3d845ea0d8c2726a5d86267b97dd8e22d67"
+  },
+  {
+    "query": "nonexistent cases ChatGPT",
+    "expected_document_id": "aa0364d13468648510f665d798a2d3d845ea0d8c2726a5d86267b97dd8e22d67"
+  },
+  {
+    "query": "Montreal Convention two-year period",
+    "expected_document_id": "46aa307ba49c40c615389cc63a1086fb80ba6aab9d2aa87fc62d22f8548429a7"
+  },
+  {
+    "query": "bankruptcy automatic stay tolling",
+    "expected_document_id": "46aa307ba49c40c615389cc63a1086fb80ba6aab9d2aa87fc62d22f8548429a7"
+  },
+  {
+    "query": "request judicial intervention",
+    "expected_document_id": "90098b3bee79933dabab7ecefbc99bfd83e4f625334415eaacf49ffe0d87e1a0"
+  },
+  {
+    "query": "preliminary conference request",
+    "expected_document_id": "90098b3bee79933dabab7ecefbc99bfd83e4f625334415eaacf49ffe0d87e1a0"
+  }
+]
