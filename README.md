@@ -44,7 +44,9 @@ Open `http://127.0.0.1:8000`. API documentation is at `/docs`. The default SQLit
 | *Mata v. Avianca, Inc.*, SDNY `1:22-cv-01461` | #54 sanctions opinion (43 pages); #55 dismissal opinion (7 pages), June 22, 2023 | Federal court opinions, downloaded from Justia's published copies. **Not a direct PACER or live RECAP run.** |
 | *Garcia v. The Lillian Goldman Family, LLC et al.*, Queens Supreme Court `701695/2024` | #35 Request for Judicial Intervention (3 pages), September 23, 2024 | Public NYSCEF document downloaded from the official court site |
 
-Exact source URLs and SHA-256 hashes are in [examples/demo.json](examples/demo.json). The corpus is deliberately small. The NYSCEF adapter consumes selected public document URLs; it does not discover all cases or automate guest search. Source availability can change; the pinned hash intentionally rejects a changed PDF.
+Exact source URLs and SHA-256 hashes are in [examples/demo.json](examples/demo.json). The corpus is deliberately small.
+
+**NYSCEF access (observed 2026-10-19):** NYSCEF now answers non-browser clients with a Cloudflare challenge (HTTP 403), so `courtsignal ingest` quarantines document #35. CourtSignal does not imitate a browser or solve challenges. Instead, `courtsignal browser-fetch` opens the public URL in your own desktop browser, waits for the saved PDF in `~/Downloads` (configurable), accepts it only if it matches the pinned SHA-256, and ingests it with the usual checks. Manifest entries may also name a `fallback_url` (a project-archived copy) that is used only after the original download fails and only with a matching pinned hash; the stored record keeps the original source URL and notes where the bytes were retrieved from. The NYSCEF adapter consumes selected public document URLs; it does not discover all cases or automate guest search. Source availability can change; the pinned hash intentionally rejects a changed PDF.
 
 *Mata* is a useful sample because the sanctions opinion addresses fabricated AI-generated case citations. It makes provenance and evidence checking concrete.
 

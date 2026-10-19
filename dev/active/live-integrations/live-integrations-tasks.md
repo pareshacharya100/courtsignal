@@ -4,7 +4,8 @@ Last Updated: 2026-10-19
 
 - [x] Reproduce tests and federal ingestion locally (31 passed; hashes and counts match)
 - [x] Verify Claude/Voyage/Pinecone request contracts against current docs (Pinecone query pending live)
-- [ ] User downloads NYSCEF doc 35 in a browser; add a hash-verified local-file ingest option and test; re-run full ingest (2 cases / 3 docs / 53 pages / 94 chunks)
+- [x] NYSCEF doc 35 restored via `courtsignal browser-fetch` (2026-10-19): 2 cases / 3 docs / 53 pages / 94 chunks, byte-identical to recorded; keyword eval 6/6 rank 1; rerun all unchanged
+- [ ] Publish hash-pinned archive copy (GitHub release `corpus-v1`) and add `fallback_url` to examples/demo.json; awaiting user approval to publish; verify the release redirect host and narrow PUBLIC_HOSTS
 - [ ] Browser walkthrough of live explorer and offline demo
 - [ ] User adds ANTHROPIC_API_KEY to .env; bounded `enrich` on doc 54 (3 pages); record
 - [ ] Bounded `answer` (keyword mode); record

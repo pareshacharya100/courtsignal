@@ -9,6 +9,7 @@ from .providers import Claude, Voyage, Pinecone
 from .search import search
 from .sources import RecapSource
 from .storage import Store
+from .transport import browser_download
 
 
 def emit(value):
@@ -22,6 +23,10 @@ def main():
     p.add_argument('--manifest', default='examples/demo.json')
     p.add_argument('--refresh', action='store_true')
     p.add_argument('--report', type=Path)
+    p = commands.add_parser('browser-fetch', help='Open challenge-protected public sources in your desktop browser, verify and ingest the download')
+    p.add_argument('--manifest', default='examples/demo.json')
+    p.add_argument('--downloads', type=Path, default=Path.home() / 'Downloads')
+    p.add_argument('--timeout', type=int, default=180, help='Seconds to wait per document')
     p = commands.add_parser('recap', help='Read existing RECAP archive documents; no PACER purchases')
     p.add_argument('--docket-id', type=int, required=True)
     p.add_argument('--limit', type=int, default=5)
@@ -59,6 +64,17 @@ def main():
                 args.report.write_text(json.dumps(result, indent=2))
             emit(result)
             if any(d['status'] == 'quarantined' for d in result['documents']):
+                return 1
+        elif args.command == 'browser-fetch':
+            # Only pinned documents not yet stored; the hash is what makes a browser download trustworthy.
+            targets = [s for s in load_manifest(args.manifest) if s.expected_sha256 and not store.document(s.id)]
+            documents = []
+            for spec in targets:
+                path, data = browser_download(spec.download_url, spec.expected_sha256, args.downloads, args.timeout)
+                store.event(spec.id, 'browser_download', json.dumps({'url': spec.download_url, 'file': path.name}))
+                documents += ingest([spec], store, settings.data_dir, downloader=lambda _, data=data: data)['documents']
+            emit({'documents': documents, 'counts': store.counts()})
+            if any(d['status'] == 'quarantined' for d in documents):
                 return 1
         elif args.command == 'recap':
             specs = RecapSource(settings.courtlistener_token).documents(args.docket_id, args.limit, args.max_pages)

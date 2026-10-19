@@ -1,8 +1,9 @@
 from datetime import date
+from hashlib import sha256
 from io import BytesIO
 import pytest
 from pypdf import PdfWriter
-from courtsignal.models import Case, Page, Fact, Extraction
+from courtsignal.models import Case, DocumentSpec, Page, Fact, Extraction
 from courtsignal.parsing import chunk_pages, parse_pdf, validate_header, validate_facts
 from courtsignal.pipeline import ingest
 
@@ -97,6 +98,39 @@ def test_failed_child_insert_rolls_back_document_replacement(store, spec, pages)
         store.save_document(spec, 'new', pages, [duplicate, duplicate], {})
     assert store.document(spec.id)['content_hash'] == 'old'
     assert store.chunks()[0]['id'] != duplicate.id
+
+
+def test_blocked_source_falls_back_to_pinned_archive_copy(store, spec, pages, tmp_path, monkeypatch):
+    import courtsignal.pipeline as module
+    data = b'%PDF-archived court document'
+    archive = 'https://github.com/example/courtsignal/releases/download/corpus-v1/doc.pdf'
+    pinned = spec.model_copy(update={'expected_sha256': sha256(data).hexdigest(), 'fallback_url': archive})
+    monkeypatch.setattr(module, 'parse_pdf', lambda _: pages)
+    def downloader(url):
+        if url == spec.download_url:
+            raise ValueError('Document download returned HTTP 403; retry later or check source access')
+        return data
+    result = ingest([pinned], store, tmp_path, downloader=downloader)['documents'][0]
+    assert result['status'] == 'created'
+    assert result['quality']['retrieved_from'] == archive
+    assert 'HTTP 403' in result['quality']['primary_source_error']
+    assert store.document(spec.id)['source_url'] == spec.download_url  # canonical source is unchanged
+
+
+def test_fallback_copy_must_match_pin(store, spec, tmp_path):
+    pinned = spec.model_copy(update={'expected_sha256': '0' * 64, 'fallback_url': 'https://github.com/example/doc.pdf'})
+    def downloader(url):
+        if url == spec.download_url:
+            raise ValueError('HTTP 403')
+        return b'%PDF-tampered copy'
+    result = ingest([pinned], store, tmp_path, downloader=downloader)['documents'][0]
+    assert result['status'] == 'quarantined' and 'SHA-256' in result['error']
+    assert store.counts()['documents'] == 0
+
+
+def test_fallback_requires_pinned_hash(spec):
+    with pytest.raises(ValueError, match='pinned'):
+        DocumentSpec.model_validate({**spec.model_dump(mode='json'), 'fallback_url': 'https://github.com/example/doc.pdf'})
 
 
 def test_checksum_mismatch_is_quarantined_before_parsing(store, spec, tmp_path):
