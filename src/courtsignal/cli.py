@@ -40,7 +40,9 @@ def main():
     p = commands.add_parser('enrich', help='Explicitly invoke the paid Claude API')
     p.add_argument('--document-id', required=True)
     p.add_argument('--max-pages', type=int, default=3)
-    commands.add_parser('index', help='Explicitly embed current chunks with Voyage and upsert to Pinecone')
+    p = commands.add_parser('index', help='Explicitly embed current chunks with Voyage and upsert to Pinecone')
+    p.add_argument('--batch-size', type=int, default=32, help='Texts per Voyage request')
+    p.add_argument('--pause', type=float, default=0, help='Seconds between Voyage requests (low rate-limit accounts)')
     p = commands.add_parser('answer', help='Explicitly invoke Claude over retrieved evidence')
     p.add_argument('question')
     p.add_argument('--mode', choices=['keyword', 'semantic'], default='keyword')
@@ -88,7 +90,7 @@ def main():
             if not chunks:
                 raise ValueError('Ingest documents before indexing')
             pinecone = Pinecone(settings)
-            vectors = Voyage(settings).embed([h['text'] for h in chunks], 'document')
+            vectors = Voyage(settings).embed([h['text'] for h in chunks], 'document', args.batch_size, args.pause)
             emit({'upserted': pinecone.index(chunks, vectors), 'model': settings.voyage_model,
                   'dimension': settings.embedding_dimension, 'namespace': settings.pinecone_namespace})
         elif args.command == 'enrich':
