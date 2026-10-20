@@ -109,6 +109,17 @@ def test_embedding_input_type_and_cache_separation(tmp_path):
     assert all(c['truncation'] is False for c in calls)
 
 
+def test_embedding_batches_are_paced(tmp_path):
+    sizes, pauses = [], []
+    def handler(req):
+        inputs = json.loads(req.content)['input']
+        sizes.append(len(inputs))
+        return httpx.Response(200, json={'data': [{'index': i, 'embedding': [1.0, 0.0]} for i in range(len(inputs))]})
+    voyage = Voyage(Settings(data_dir=tmp_path, voyage_key='test', embedding_dimension=2), client(handler))
+    voyage.embed([f'text {i}' for i in range(5)], 'document', batch_size=2, pause=21, sleep=pauses.append)
+    assert sizes == [2, 2, 1] and pauses == [21, 21]
+
+
 def test_pinecone_model_dimension_and_source_filter():
     def handler(req):
         assert req.headers['X-Pinecone-Api-Version'] == '2025-10'

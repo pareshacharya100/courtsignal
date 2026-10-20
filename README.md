@@ -2,6 +2,10 @@
 
 Court records into structured, searchable evidence—with a page behind every result.
 
+![CourtSignal explorer: keyword search, document inspector, live semantic search, and a NYSCEF case timeline](docs/demo.gif)
+
+*Recorded from the local explorer with the real corpus and live Voyage + Pinecone retrieval ([scripts/record_demo.py](scripts/record_demo.py)).*
+
 A small data-engineering project covering acquisition, normalization, validation, storage, grounded extraction, and retrieval. The included corpus contains **2 cases, 3 documents, 53 pages, and 94 page-preserving passages**. It includes federal opinions in *Mata v. Avianca* and a filing downloaded directly from NYSCEF.
 
 ## Try it
@@ -110,7 +114,7 @@ Recorded evidence is in [docs/demo-ingestion.json](docs/demo-ingestion.json), [d
 
 Tests cover transactional rollback, changed-document invalidation, idempotency, a NYSCEF service-date/filing-date collision, scanned PDFs, checksum failures, fabricated extraction evidence, provider response handling, embedding validation/cache identity, stale vector IDs, source filters, API contracts, and snapshot escaping. CI runs the suite on SQLite and PostgreSQL 16. External service contracts use HTTP mocks.
 
-**Execution status:** the public PDF downloads, SQLite ingestion, keyword retrieval, API tests, and offline export have run. Claude, Voyage, Pinecone, and authenticated RECAP have not run live because their keys are not configured. Their adapters are implemented and tested with mocked responses. PostgreSQL integration is included in CI; see the actual Actions result rather than assuming it passed.
+**Execution status:** the public PDF downloads, SQLite ingestion, keyword retrieval, API tests, and offline export have run. **Voyage and Pinecone ran live on 2026-10-19** ([docs/live-semantic-validation.json](docs/live-semantic-validation.json)): all 94 passages were embedded with `voyage-4-lite` and upserted to a 1024-dimension cosine Pinecone index; the six evaluation queries in semantic mode also retrieved the expected document at rank 1 (the same small smoke test, not a benchmark). On a Voyage account without a payment method, 32-passage requests returned HTTP 429, so `courtsignal index --batch-size 8 --pause 21` paces requests; failed requests are not auto-retried and reruns resume from the embedding cache. Claude extraction/answers and authenticated RECAP have **not** run live; their adapters are tested with mocked responses. PostgreSQL integration is included in CI; see the actual Actions result rather than assuming it passed.
 
 ## Design and limits
 

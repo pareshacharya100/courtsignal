@@ -3,6 +3,7 @@ from hashlib import sha256
 import json
 import math
 from pathlib import Path
+import time
 from urllib.parse import urlparse
 import httpx
 from .models import Extraction, Answer
@@ -86,9 +87,13 @@ class Voyage:
             raise ValueError('Embedding has an invalid dimension or non-finite value')
         return vector
 
-    def embed(self, texts, input_type):
+    def embed(self, texts, input_type, batch_size=32, pause=0, sleep=time.sleep):
+        """Embed with cache reuse. A pause between batches respects low account rate limits;
+        failed POSTs are still not retried, and a rerun resumes from the cache."""
         if input_type not in ('document', 'query'):
             raise ValueError('Embedding input_type must be document or query')
+        if not 1 <= batch_size <= 128 or pause < 0:
+            raise ValueError('batch_size must be 1–128 and pause nonnegative')
         vectors = [None] * len(texts)
         pending = []
         for i, text in enumerate(texts):
@@ -98,8 +103,10 @@ class Voyage:
                 vectors[i] = self.validate(json.loads(path.read_text()))
             else:
                 pending.append((i, text, path))
-        for start in range(0, len(pending), 32):
-            batch = pending[start:start + 32]
+        for start in range(0, len(pending), batch_size):
+            if start and pause:
+                sleep(pause)
+            batch = pending[start:start + batch_size]
             response = request(self.client, 'POST', 'https://api.voyageai.com/v1/embeddings',
                 headers={'Authorization': f'Bearer {self.settings.voyage_key}'},
                 json={'input': [item[1] for item in batch], 'model': self.settings.voyage_model,
